@@ -15,11 +15,13 @@ import com.shahrukh.movieapp.model.Genre
 import com.shahrukh.movieapp.repository.FilmRepository
 import com.shahrukh.movieapp.repository.GenreRepository
 import com.shahrukh.movieapp.utils.FilmType
+import com.shahrukh.movieapp.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -64,6 +66,26 @@ class HomeViewModel @Inject constructor(
                 }.cachedIn(viewModelScope)
             } else {
                 filmRepository.getPopularFilms(filmType).cachedIn(viewModelScope)
+            }
+        }
+    }
+
+    fun getFilmGenre(filmType: FilmType = selectedFilmType.value) {
+        viewModelScope.launch {
+            val defaultGenre = Genre(null, "All")
+            when (val results = genreRepository.getMoviesGenre(filmType)) {
+                is Resource.Success -> {
+                    _filmGenres.clear()
+                    _filmGenres.add(defaultGenre)
+                    selectedGenre.value = defaultGenre
+                    results.data?.genres?.forEach {
+                        _filmGenres.add(it)
+                    }
+                }
+                is Resource.Error -> {
+                    Timber.e("Error loading Genres")
+                }
+                else -> { }
             }
         }
     }

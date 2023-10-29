@@ -44,6 +44,7 @@ object AppModule {
     fun providesAPIService(okHttpClient: OkHttpClient): ApiService {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
+
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()

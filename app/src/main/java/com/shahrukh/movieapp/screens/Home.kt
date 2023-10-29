@@ -1,19 +1,27 @@
 package com.shahrukh.movieapp.screens
 
 import android.media.Image
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,6 +52,9 @@ import com.skydoves.landscapist.ShimmerParams
 import com.skydoves.landscapist.coil.CoilImage
 import retrofit2.HttpException
 import java.io.IOException
+import com.shahrukh.movieapp.R
+import com.shahrukh.movieapp.screens.destinations.ProfileDestination
+
 
 @Destination
 @Composable
@@ -62,6 +73,7 @@ fun Home(
 
         val popularFilms = homeViewModel.popularFilmsState.value.collectAsLazyPagingItems()
 
+        navigator?.let { ProfileAndSearchBar(navigator = it, homeViewModel = homeViewModel ) }
 
 
 
@@ -87,7 +99,9 @@ fun Home(
                 }
             ) {
                 Icon(
-                    modifier = Modifier.size(32.dp).padding(top = 5.dp, end = 5.dp),
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(top = 5.dp, end = 5.dp),
                     painter = painterResource(id = android.R.drawable.ic_menu_search),
                     contentDescription = "search icon",
                     tint = AppOnPrimaryColor
@@ -158,6 +172,124 @@ fun Home(
     }
 
 
+}
+
+
+
+@Composable
+fun ProfileAndSearchBar(
+    navigator: DestinationsNavigator,
+    homeViewModel: HomeViewModel
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 12.dp, bottom = 4.dp, start = 8.dp, end = 8.dp)
+            .fillMaxWidth()
+            .padding(start = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Box(
+            contentAlignment = Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(53.dp)
+                    .clip(CircleShape)
+                // .background(AppOnPrimaryColor)
+            )
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(AppPrimaryColor)
+            )
+            IconButton(onClick = {
+                navigator.navigate(
+                    direction = ProfileDestination()
+                ) {
+                    launchSingleTop = true
+                }
+            }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_person_profile),
+                    tint = AppOnPrimaryColor,
+                    modifier = Modifier.size(32.dp),
+                    contentDescription = "profile picture"
+                )
+            }
+        }
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            val filmTypes = listOf(FilmType.MOVIE, FilmType.TVSHOW)
+            val selectedFilmType = homeViewModel.selectedFilmType.value
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                filmTypes.forEachIndexed { index, filmType ->
+                    Text(
+                        text = if (filmType == FilmType.MOVIE) "Movies" else "Tv Shows",
+                        fontWeight = if (selectedFilmType == filmTypes[index]) FontWeight.Bold else Light,
+                        fontSize = if (selectedFilmType == filmTypes[index]) 24.sp else 16.sp,
+                        color = if (selectedFilmType == filmTypes[index])
+                            AppOnPrimaryColor else Color.LightGray.copy(alpha = 0.78F),
+                        modifier = Modifier
+                            .padding(start = 4.dp, end = 4.dp, top = 8.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                if (homeViewModel.selectedFilmType.value != filmTypes[index]) {
+                                    homeViewModel.selectedFilmType.value = filmTypes[index]
+                                    homeViewModel.getFilmGenre()
+                                    homeViewModel.refreshAll(null)
+                                }
+                            }
+                    )
+                }
+            }
+
+            val animOffset = animateDpAsState(
+                targetValue = when (filmTypes.indexOf(selectedFilmType)) {
+                    0 -> (-35).dp
+                    else -> 30.dp
+                },
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy
+                )
+            )
+
+            Box(
+                modifier = Modifier
+                    .width(46.dp)
+                    .height(2.dp)
+                    .offset(x = animOffset.value)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(AppOnPrimaryColor)
+            )
+        }
+
+        IconButton(
+            onClick = {
+                navigator.navigate(
+                    direction = SearchScreenDestination()
+                ) {
+                    launchSingleTop = true
+                }
+            }
+        ) {
+            Icon(
+                modifier = Modifier.size(28.dp),
+                painter = painterResource(id = R.drawable.ic_search),
+                contentDescription = "search icon",
+                tint = AppOnPrimaryColor
+            )
+        }
+    }
 }
 
 
