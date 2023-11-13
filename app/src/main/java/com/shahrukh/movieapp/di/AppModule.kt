@@ -1,11 +1,14 @@
 package com.shahrukh.movieapp.di
 
 import android.app.Application
+import androidx.room.Room
+import com.shahrukh.movieapp.data.local.WatchListDatabase
 import com.shahrukh.movieapp.data.prefs.UserPreferences
 import com.shahrukh.movieapp.data.remote.ApiService
 import com.shahrukh.movieapp.repository.FilmRepository
 import com.shahrukh.movieapp.repository.GenreRepository
 import com.shahrukh.movieapp.repository.SearchRepository
+import com.shahrukh.movieapp.repository.WatchListRepository
 import com.shahrukh.movieapp.utils.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -67,6 +70,20 @@ object AppModule {
     @Singleton
     fun providesDataStore(application: Application): UserPreferences {
         return UserPreferences(application.applicationContext)
+    }
+
+    @Singleton
+    @Provides
+    fun providesWatchListRepository(watchListDatabase: WatchListDatabase) =
+        WatchListRepository(database = watchListDatabase)
+    @Provides
+    @Singleton
+    fun providesWatchListDatabase(application: Application): WatchListDatabase {
+        return Room.databaseBuilder(
+            application.applicationContext,
+            WatchListDatabase::class.java,
+            "watch_list_db"
+        ).fallbackToDestructiveMigration().build()
     }
 
 }
