@@ -45,5 +45,26 @@ interface ApiService {
         @Query("language") language: String = "en-US"
     ): GenreResponse
 
+    @GET("movie/now_playing")
+    suspend fun getNowPlayingMovies(
+        @Query("page") page: Int = 0,
+        @Query("api_key") apiKey: String = "64e371e5a440e766829afdecba6ae279",
+        @Query("language") language: String = "en"
+    ): FilmResponse
+
+
+    @GET("tv/on_the_air")
+    suspend fun getOnTheAirTvShows(
+        @Query("page") page: Int = 0,
+        @Query("api_key") apiKey: String = "64e371e5a440e766829afdecba6ae279",
+        @Query("language") language: String = "en-US"
+    ): FilmResponse
+
+    @GET("tv/popular")
+    suspend fun getPopularTvShows(
+        @Query("page") page: Int = 0,
+        @Query("api_key") apiKey: String = "64e371e5a440e766829afdecba6ae279",
+        @Query("language") language: String = "en-US"
+    ): FilmResponse
 
 }

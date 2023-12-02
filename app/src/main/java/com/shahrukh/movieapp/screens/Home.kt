@@ -82,7 +82,7 @@ fun Home(
 
 
 
-        Row {
+       /** Row {
 
             Text(text = "The Movie App", color= Color.White, modifier = Modifier.padding(start = 10.dp, top = 15.dp))
             Spacer(modifier = Modifier.weight(1f))
@@ -107,7 +107,7 @@ fun Home(
                     tint = AppOnPrimaryColor
                 )
             }
-        }
+        }*/
 
 
         LazyVerticalGrid(
