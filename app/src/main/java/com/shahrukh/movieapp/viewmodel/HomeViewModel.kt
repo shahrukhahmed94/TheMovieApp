@@ -40,6 +40,9 @@ class HomeViewModel @Inject constructor(
     var selectedGenre: MutableState<Genre> = mutableStateOf(Genre(null, "All"))
     var selectedFilmType: MutableState<FilmType> = mutableStateOf(FilmType.MOVIE)
 
+    private var _recommendedFilms = mutableStateOf<Flow<PagingData<Film>>>(emptyFlow())
+    val recommendedMovies: MutableState<Flow<PagingData<Film>>> = _recommendedFilms
+    var randomMovieId: Int? = null
 
     init {
         refreshAll()
@@ -86,6 +89,19 @@ class HomeViewModel @Inject constructor(
                     Timber.e("Error loading Genres")
                 }
                 else -> { }
+            }
+        }
+    }
+
+
+    fun getRecommendedFilms(movieId: Int, genreId: Int? = null, filmType: FilmType = selectedFilmType.value) {
+        viewModelScope.launch {
+            _recommendedFilms.value = if (genreId != null) {
+                filmRepository.getRecommendedFilms(movieId, filmType).map { result ->
+                    result.filter { movie -> movie.genreIds!!.contains(genreId) }
+                }.cachedIn(viewModelScope)
+            } else {
+                filmRepository.getRecommendedFilms(movieId, filmType).cachedIn(viewModelScope)
             }
         }
     }

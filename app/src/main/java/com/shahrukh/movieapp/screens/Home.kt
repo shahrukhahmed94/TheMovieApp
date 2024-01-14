@@ -17,6 +17,8 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -54,6 +56,7 @@ import retrofit2.HttpException
 import java.io.IOException
 import com.shahrukh.movieapp.R
 import com.shahrukh.movieapp.screens.destinations.ProfileDestination
+import com.shahrukh.movieapp.viewmodel.WatchListViewModel
 
 
 @Destination
@@ -61,7 +64,7 @@ import com.shahrukh.movieapp.screens.destinations.ProfileDestination
 fun Home(
     navigator: DestinationsNavigator?,
     homeViewModel: HomeViewModel = hiltViewModel(),
-   // watchListViewModel: WatchListViewModel = hiltViewModel()
+    watchListViewModel: WatchListViewModel = hiltViewModel()
 ) {
     Column(
         modifier = Modifier
@@ -73,6 +76,25 @@ fun Home(
 
         val popularFilms = homeViewModel.popularFilmsState.value.collectAsLazyPagingItems()
 
+        val myWatchList = watchListViewModel.watchList.value.collectAsState(initial = emptyList())
+        val recommendedFilms = homeViewModel.recommendedMovies.value.collectAsLazyPagingItems()
+
+
+
+        LaunchedEffect(key1 = myWatchList.value.size) {
+            if (myWatchList.value.isNotEmpty()) {
+                homeViewModel.randomMovieId =
+                    myWatchList.value[(0..myWatchList.value.lastIndex).random()].mediaId
+                if (recommendedFilms.itemCount == 0) {
+                    homeViewModel.getRecommendedFilms(movieId = homeViewModel.randomMovieId!!)
+                }
+            }
+        }
+
+
+
+
+
         navigator?.let { ProfileAndSearchBar(navigator = it, homeViewModel = homeViewModel ) }
 
 
@@ -82,39 +104,15 @@ fun Home(
 
 
 
-       /** Row {
-
-            Text(text = "The Movie App", color= Color.White, modifier = Modifier.padding(start = 10.dp, top = 15.dp))
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconButton(
-
-
-                onClick = {
-                    navigator?.navigate(
-                        direction = SearchScreenDestination()
-                    ) {
-                        launchSingleTop = true
-                    }
-                }
-            ) {
-                Icon(
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(top = 5.dp, end = 5.dp),
-                    painter = painterResource(id = android.R.drawable.ic_menu_search),
-                    contentDescription = "search icon",
-                    tint = AppOnPrimaryColor
-                )
-            }
-        }*/
-
-
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
 
 
             ) {
+
+
+
+
             items(popularFilms.itemCount)
             { index ->
                 popularFilms[index]?.let {

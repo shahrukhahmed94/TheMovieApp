@@ -39,6 +39,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.shahrukh.movieapp.R
+import com.shahrukh.movieapp.data.local.MyListMovie
 import com.shahrukh.movieapp.model.Cast
 import com.shahrukh.movieapp.model.Film
 import com.shahrukh.movieapp.model.Genre
@@ -53,6 +54,7 @@ import com.shahrukh.movieapp.utils.Constants.BASE_POSTER_IMAGE_URL
 import com.shahrukh.movieapp.utils.FilmType
 import com.shahrukh.movieapp.viewmodel.DetailsViewModel
 import com.shahrukh.movieapp.viewmodel.HomeViewModel
+import com.shahrukh.movieapp.viewmodel.WatchListViewModel
 import com.skydoves.landscapist.CircularReveal
 import com.skydoves.landscapist.ShimmerParams
 import com.skydoves.landscapist.coil.CoilImage
@@ -65,6 +67,7 @@ fun MovieDetails(
     navigator: DestinationsNavigator,
     homeViewModel: HomeViewModel = hiltViewModel(),
     detailsViewModel: DetailsViewModel = hiltViewModel(),
+    watchListViewModel: WatchListViewModel = hiltViewModel(),
     currentFilm: Film,
     selectedFilmType: FilmType
 ) {
@@ -76,6 +79,16 @@ fun MovieDetails(
     val date = SimpleDateFormat.getDateTimeInstance().format(Date())
 
 
+    val watchListMovie = MyListMovie(
+        mediaId = film.id,
+        imagePath = film.posterPath,
+        title = film.title,
+        releaseDate = film.releaseDate,
+        rating = film.voteAverage,
+        addedOn = date
+    )
+
+    val addedToList = watchListViewModel.addedToWatchList.value
 
     val filmCastList = detailsViewModel.filmCast.value
 
@@ -228,6 +241,31 @@ fun MovieDetails(
                 )
 
 
+                val context = LocalContext.current
+                IconButton(onClick = {
+                    if (addedToList != 0) {
+                        watchListViewModel.removeFromWatchList(watchListMovie.mediaId)
+
+                        Toast.makeText(
+                            context, "Removed from watchlist", LENGTH_SHORT
+                        ).show()
+
+                    } else {
+                        watchListViewModel.addToWatchList(watchListMovie)
+                        Toast.makeText(
+                            context, "Added to watchlist", LENGTH_SHORT
+                        ).show()
+                    }
+                }) {
+                    Icon(
+                        painter = painterResource(
+                            id = if (addedToList != 0) R.drawable.ic_added_to_list
+                            else R.drawable.ic_add_to_list
+                        ),
+                        tint = AppOnPrimaryColor,
+                        contentDescription = "add to watch list icon"
+                    )
+                }
 
 
             }
@@ -286,6 +324,14 @@ fun MovieDetails(
                     )
                 }
             }
+
+
+
+
+
+
+
+
         }
 
         ExpandableText(

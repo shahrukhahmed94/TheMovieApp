@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.shahrukh.movieapp.R
+import com.shahrukh.movieapp.screens.destinations.WatchListDestination
 import com.shahrukh.movieapp.sharedComposables.BackButton
 import com.shahrukh.movieapp.sharedComposables.CustomSwitch
 import com.shahrukh.movieapp.ui.theme.AppOnPrimaryColor
@@ -199,7 +200,7 @@ fun Profile(
                 contentColor = AppOnPrimaryColor
             ),
             onClick = {
-               // navigator.navigate(WatchListDestination)
+               navigator.navigate(WatchListDestination)
             }
         ) {
             Text(text = "My List")

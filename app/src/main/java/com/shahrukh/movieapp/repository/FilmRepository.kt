@@ -6,6 +6,7 @@ import androidx.paging.PagingData
 import com.shahrukh.movieapp.data.remote.ApiService
 import com.shahrukh.movieapp.model.Film
 import com.shahrukh.movieapp.paging.PopularFilmSource
+import com.shahrukh.movieapp.paging.RecommendedFilmSource
 import com.shahrukh.movieapp.utils.FilmType
 import kotlinx.coroutines.flow.Flow
 import timber.log.Timber
@@ -21,6 +22,15 @@ class FilmRepository @Inject constructor(
             config = PagingConfig(enablePlaceholders = false, pageSize = 20),
             pagingSourceFactory = {
                 PopularFilmSource(api = api, filmType)
+            }
+        ).flow
+    }
+
+    fun getRecommendedFilms(movieId: Int, filmType: FilmType): Flow<PagingData<Film>> {
+        return Pager(
+            config = PagingConfig(enablePlaceholders = false, pageSize = 20),
+            pagingSourceFactory = {
+                RecommendedFilmSource(api = api, filmId = movieId, filmType)
             }
         ).flow
     }
