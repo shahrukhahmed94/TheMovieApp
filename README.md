@@ -1,3 +1,4 @@
+
 # Movie Explorer App
 
 Movie Explorer is an Android app that allows users to discover information about movies using the TMDB API. The app is built using the latest Android technologies, including Jetpack Compose, Hilt for dependency injection, MVVM architecture, and Room database for local data storage.
@@ -34,6 +35,7 @@ Movie Explorer is an Android app that allows users to discover information about
 
 
 <img src="https://github.com/Shahrukh12345/TheMovieApp/assets/18500827/a4675db2-e50d-463e-9553-b06718a797f6" width="200">
+<img src = "https://github.com/shahrukhahmed94/TheMovieApp/assets/18500827/0c0456b0-c316-47ea-8c44-2c6c58f3c625" width = "200" >
 
 
 
