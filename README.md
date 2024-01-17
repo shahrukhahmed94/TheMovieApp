@@ -11,6 +11,7 @@ Movie Explorer is an Android app that allows users to discover information about
 - **TMDB API Integration**: Utilizes the TMDB API to fetch movie information.
 - **Searching Functionality**: Allows users to search for movies based on various criteria.
 - **Watchlist Functionality**: Users can add movies to their watchlist for future reference.
+- **Compose Destination**: A navigation library for android
 
 ## Getting Started
 
@@ -18,6 +19,10 @@ Movie Explorer is an Android app that allows users to discover information about
 
 - Android Studio
 - TMDB API Key (Get it from [TMDB](https://www.themoviedb.org/documentation/api))
+![Screenshot_4](https://github.com/Shahrukh12345/TheMovieApp/assets/18500827/a4675db2-e50d-463e-9553-b06718a797f6)
+![Screenshot_3](https://github.com/Shahrukh12345/TheMovieApp/assets/18500827/909301c7-f1ba-45e8-be31-162da04092ae)
+![Screenshot_2](https://github.com/Shahrukh12345/TheMovieApp/assets/18500827/6ac7fe83-dc1d-41ab-9217-9616d26a852d)
+![Screenshot_20240117_220850](https://github.com/Shahrukh12345/TheMovieApp/assets/18500827/279ba3a8-1575-4ba2-bc33-2a9338f3cb7d)
 
 ### Installation
 
