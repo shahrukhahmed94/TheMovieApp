@@ -1,6 +1,7 @@
 package com.shahrukh.movieapp.screens
 
-import android.widget.RatingBar
+
+
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.animation.AnimatedVisibility
@@ -43,6 +44,7 @@ import com.shahrukh.movieapp.data.local.MyListMovie
 import com.shahrukh.movieapp.model.Cast
 import com.shahrukh.movieapp.model.Film
 import com.shahrukh.movieapp.model.Genre
+import com.shahrukh.movieapp.screens.destinations.WatchProvidersScreenDestination
 import com.shahrukh.movieapp.sharedComposables.BackButton
 import com.shahrukh.movieapp.sharedComposables.ExpandableText
 import com.shahrukh.movieapp.sharedComposables.MovieGenreChip
@@ -77,8 +79,6 @@ fun MovieDetails(
     val filmType: FilmType = remember { selectedFilmType }
 
     val date = SimpleDateFormat.getDateTimeInstance().format(Date())
-
-
     val watchListMovie = MyListMovie(
         mediaId = film.id,
         imagePath = film.posterPath,
@@ -89,11 +89,14 @@ fun MovieDetails(
     )
 
     val addedToList = watchListViewModel.addedToWatchList.value
-
+    val similarFilms = detailsViewModel.similarMovies.value.collectAsLazyPagingItems()
     val filmCastList = detailsViewModel.filmCast.value
 
     LaunchedEffect(key1 = film) {
-
+        detailsViewModel.getSimilarFilms(filmId = film.id, filmType)
+        detailsViewModel.getFilmCast(filmId = film.id, filmType)
+        watchListViewModel.exists(mediaId = film.id)
+        detailsViewModel.getWatchProviders(film.id, selectedFilmType)
     }
 
     Column(
@@ -131,10 +134,10 @@ fun MovieDetails(
                             .fillMaxSize()
                             .padding(2.dp)
                     ) {
-                        //Image(
-                          //  painter = painterResource(id = ),
-                            //contentDescription = "no image"
-                        //)
+                        Image(
+                            painter = painterResource(id = R.drawable.backdrop_not_available),
+                            contentDescription = "no image"
+                        )
                     }
                 },
                 shimmerParams = ShimmerParams(
@@ -240,34 +243,91 @@ fun MovieDetails(
                     color = Color.White.copy(alpha = 0.56F)
                 )
 
+              /**  RatingBar(
+                    value = (film.voteAverage / 2).toFloat(),
+                    modifier = Modifier.padding(start = 6.dp, bottom = 4.dp, top = 4.dp),
+                    config = RatingBarConfig()
+                        .style(RatingBarStyle.Normal)
+                        .isIndicator(true)
+                        .activeColor(Color(0XFFC9F964))
+                        .hideInactiveStars(false)
+                        .inactiveColor(Color.LightGray.copy(alpha = 0.3F))
+                        .stepSize(StepSize.HALF)
+                        .numStars(5)
+                        .size(16.dp)
+                        .padding(4.dp),
+                    onValueChange = {},
+                    onRatingChanged = {}
+                )*/
 
-                val context = LocalContext.current
-                IconButton(onClick = {
-                    if (addedToList != 0) {
-                        watchListViewModel.removeFromWatchList(watchListMovie.mediaId)
-
-                        Toast.makeText(
-                            context, "Removed from watchlist", LENGTH_SHORT
-                        ).show()
-
-                    } else {
-                        watchListViewModel.addToWatchList(watchListMovie)
-                        Toast.makeText(
-                            context, "Added to watchlist", LENGTH_SHORT
-                        ).show()
-                    }
-                }) {
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(start = 4.dp, bottom = 8.dp)
+                        .fillMaxWidth(0.42F),
+                ) {
                     Icon(
-                        painter = painterResource(
-                            id = if (addedToList != 0) R.drawable.ic_added_to_list
-                            else R.drawable.ic_add_to_list
-                        ),
+                        imageVector = Icons.Rounded.Reviews,
                         tint = AppOnPrimaryColor,
-                        contentDescription = "add to watch list icon"
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                              /**  navigator.navigate(
+                                    ReviewsScreenDestination(
+                                        filmId = film.id,
+                                        filmType = filmType,
+                                        filmTitle = film.title
+                                    )
+                                )*/
+                            },
+                        contentDescription = "reviews icon"
                     )
+                    IconButton(onClick = {
+                       /** navigator.navigate(
+                            WatchProvidersScreenDestination(
+                                filmId = film.id,
+                                filmType = filmType,
+                                filmTitle = film.title
+                            )
+                        )*/
+                    }) {
+                        Icon(
+                            imageVector = Icons.Rounded.PlayCircleOutline,
+                            tint = AppOnPrimaryColor,
+                            contentDescription = "play icon"
+                        )
+                    }
+
+                    val context = LocalContext.current
+                    IconButton(onClick = {
+                        if (addedToList != 0) {
+                            watchListViewModel.removeFromWatchList(watchListMovie.mediaId)
+
+                            Toast.makeText(
+                                context, "Removed from watchlist", LENGTH_SHORT
+                            ).show()
+
+                        } else {
+                            watchListViewModel.addToWatchList(watchListMovie)
+                            Toast.makeText(
+                                context, "Added to watchlist", LENGTH_SHORT
+                            ).show()
+                        }
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (addedToList != 0) R.drawable.ic_added_to_list
+                                else R.drawable.ic_add_to_list
+                            ),
+                            tint = AppOnPrimaryColor,
+                            contentDescription = "add to watch list icon"
+                        )
+                    }
                 }
-
-
             }
 
             CoilImage(
@@ -286,10 +346,10 @@ fun MovieDetails(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.fillMaxSize()
                     ) {
-                       // Image(
-                           // painter = painterResource(id = R.drawable.image_not_available),
-                           // contentDescription = "no image"
-                        //)
+                        Image(
+                            painter = painterResource(id = R.drawable.image_not_available),
+                            contentDescription = "no image"
+                        )
                     }
                 },
                 shimmerParams = ShimmerParams(
@@ -299,7 +359,7 @@ fun MovieDetails(
                     dropOff = 0.65F,
                     tilt = 20F
                 ),
-
+                previewPlaceholder = R.drawable.popcorn,
                 contentScale = Crop,
                 circularReveal = CircularReveal(duration = 1000),
                 contentDescription = "movie poster"
@@ -324,14 +384,6 @@ fun MovieDetails(
                     )
                 }
             }
-
-
-
-
-
-
-
-
         }
 
         ExpandableText(
@@ -362,8 +414,59 @@ fun MovieDetails(
                     }
                 }
             }
+            item {
+                if (similarFilms.itemCount != 0) {
+                    Text(
+                        text = "Similar",
+                        fontWeight = Bold,
+                        fontSize = 18.sp,
+                        color = AppOnPrimaryColor,
+                        modifier = Modifier.padding(start = 4.dp, top = 6.dp, bottom = 4.dp)
+                    )
+                }
+            }
 
 
+
+            item {
+                LazyRow(modifier = Modifier.fillMaxWidth()) {
+                    items(similarFilms.itemCount) { index ->
+                        val thisMovie = similarFilms[index]
+                        CoilImage(
+                            imageModel = "${BASE_POSTER_IMAGE_URL}/${thisMovie!!.posterPath}",
+                            shimmerParams = ShimmerParams(
+                                baseColor = AppPrimaryColor,
+                                highlightColor = ButtonColor,
+                                durationMillis = 500,
+                                dropOff = 0.65F,
+                                tilt = 20F
+                            ),
+                            failure = {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.image_not_available),
+                                        contentDescription = "no image"
+                                    )
+                                }
+                            },
+                            previewPlaceholder = R.drawable.popcorn,
+                            contentScale = Crop,
+                            circularReveal = CircularReveal(duration = 1000),
+                            modifier = Modifier
+                                .padding(start = 8.dp, top = 4.dp, bottom = 4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .size(130.dp, 195.dp)
+                                .clickable {
+                                    film = thisMovie
+                                },
+                            contentDescription = "Movie item"
+                        )
+                    }
+                }
+            } //item ends here
 
         }
     }
@@ -388,9 +491,19 @@ fun CastMember(cast: Cast?) {
                 tilt = 20F
             ),
             failure = {
-
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Icon(
+                        modifier = Modifier.size(70.dp),
+                        painter = painterResource(id = R.drawable.ic_user),
+                        tint = Color.LightGray,
+                        contentDescription = null
+                    )
+                }
             },
-
+            previewPlaceholder = R.drawable.ic_user,
             contentScale = Crop,
             circularReveal = CircularReveal(duration = 1000),
             contentDescription = "cast image"

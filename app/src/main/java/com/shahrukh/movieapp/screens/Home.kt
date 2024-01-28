@@ -122,7 +122,7 @@ fun Home(
 
 
                     Column(modifier = Modifier
-                        .size(160.dp)
+                        .size(170.dp)
                         .clickable {
 
 

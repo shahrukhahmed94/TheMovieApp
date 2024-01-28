@@ -7,10 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.shahrukh.movieapp.data.remote.response.WatchProvider
+
 import com.shahrukh.movieapp.model.Cast
 import com.shahrukh.movieapp.model.Film
 import com.shahrukh.movieapp.repository.FilmRepository
 import com.shahrukh.movieapp.utils.FilmType
+import com.shahrukh.movieapp.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -25,9 +28,36 @@ class DetailsViewModel @Inject constructor(val repository: FilmRepository) : Vie
     private var _filmCast = mutableStateOf<List<Cast>>(emptyList())
     val filmCast: State<List<Cast>> = _filmCast
 
+    private var _watchProviders = mutableStateOf<WatchProvider?>(null)
+    val watchProviders: MutableState<WatchProvider?> = _watchProviders
+
+    fun getSimilarFilms(filmId: Int, filmType: FilmType) {
+        viewModelScope.launch {
+            repository.getSimilarFilms(filmId, filmType).also {
+                _similarFilms.value = it
+            }.cachedIn(viewModelScope)
+        }
+    }
 
 
+    fun getFilmCast(filmId: Int, filmType: FilmType) {
+        viewModelScope.launch {
+            repository.getFilmCast(filmId = filmId, filmType).also {
+                if (it is Resource.Success) {
+                    _filmCast.value = it.data!!.castResult
+                }
+            }
+        }
+    }
 
-
-
+    fun getWatchProviders(filmId: Int, filmType: FilmType) {
+        viewModelScope.launch {
+            repository.getWatchProviders(filmType = filmType, filmId = filmId).also {
+                if (it is Resource.Success) {
+                    _watchProviders.value = it.data!!.results
+                }
+            }
+        }
+    }
 }
+
